@@ -8,7 +8,7 @@ export async function generateBlogPost(
   memo: string,
   styleId?: string,
   customSamples?: string[]
-): Promise<{ title: string; content: string }> {
+): Promise<{ title: string; content: string; keywords: string[] }> {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
   // 스타일별 프롬프트 구성
@@ -45,10 +45,17 @@ ${exampleSection}
 - 해시태그를 글 마지막에 5~10개 추가
 - 예시 글은 스타일 참고용이며, 내용을 그대로 복사하지 마세요
 
+## SEO 키워드
+- 네이버 검색 상위 노출에 유리한 키워드를 10~15개 추천해주세요
+- 메인 키워드(검색량 높은 대표 키워드) 3~5개와 롱테일 키워드(세부 키워드) 7~10개를 구분해주세요
+- 키워드는 제목과 본문에 자연스럽게 포함되어야 합니다
+- 해시태그와 별도로, 글 본문 곳곳에 키워드를 자연스럽게 녹여주세요
+
 반드시 아래 JSON 형식으로만 응답해주세요 (다른 텍스트 없이):
 {
   "title": "블로그 제목",
-  "content": "HTML 형식의 블로그 본문"
+  "content": "HTML 형식의 블로그 본문",
+  "keywords": ["메인키워드1", "메인키워드2", "롱테일키워드1", "롱테일키워드2", ...]
 }
 
 사용자 메모: ${memo || "(메모 없음 - 사진을 보고 적절한 글을 작성해주세요)"}
@@ -79,5 +86,10 @@ ${exampleSection}
     throw new Error("AI 응답을 파싱할 수 없습니다.")
   }
 
-  return JSON.parse(jsonMatch[0])
+  const parsed = JSON.parse(jsonMatch[0])
+  return {
+    title: parsed.title,
+    content: parsed.content,
+    keywords: parsed.keywords || [],
+  }
 }

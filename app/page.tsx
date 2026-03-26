@@ -50,6 +50,7 @@ export default function Home() {
         JSON.stringify({
           title: data.title,
           content: data.content,
+          keywords: data.keywords || [],
           photos,
         })
       )

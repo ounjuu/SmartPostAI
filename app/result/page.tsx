@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import BlogPreview from "@/components/BlogPreview"
 import CopyAndOpen from "@/components/CopyAndOpen"
+import KeywordPanel from "@/components/KeywordPanel"
 
 interface GeneratedPost {
   title: string
   content: string
+  keywords: string[]
   photos: string[]
 }
 
@@ -51,6 +53,11 @@ export default function ResultPage() {
           content={post.content}
           onTitleChange={(title) => setPost({ ...post, title })}
           onContentChange={(content) => setPost({ ...post, content })}
+        />
+
+        <KeywordPanel
+          keywords={post.keywords}
+          onKeywordsChange={(keywords) => setPost({ ...post, keywords })}
         />
 
         <CopyAndOpen title={post.title} content={post.content} />
