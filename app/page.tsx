@@ -11,7 +11,7 @@ export default function Home() {
   const router = useRouter()
   const [photos, setPhotos] = useState<string[]>([])
   const [memo, setMemo] = useState("")
-  const [styleId, setStyleId] = useState("casual")
+  const [styleId, setStyleId] = useState("restaurant")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
