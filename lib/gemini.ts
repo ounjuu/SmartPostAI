@@ -78,8 +78,7 @@ ${exampleSection}
   }
 
   const result = await model.generateContent(parts)
-  const response = result.response
-  const text = response.text()
+  const text = result.response.text()
 
   const jsonMatch = text.match(/\{[\s\S]*"title"[\s\S]*"content"[\s\S]*\}/)
   if (!jsonMatch) {

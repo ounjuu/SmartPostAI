@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Card } from "./ui"
 
 interface KeywordPanelProps {
   keywords: string[]
@@ -29,7 +30,7 @@ export default function KeywordPanel({ keywords, onKeywordsChange }: KeywordPane
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 space-y-3">
+    <Card className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">SEO 추천 키워드</h3>
         <button
@@ -77,6 +78,6 @@ export default function KeywordPanel({ keywords, onKeywordsChange }: KeywordPane
       <p className="text-xs text-gray-400">
         네이버 검색 노출에 유리한 키워드입니다. 수정/추가/삭제 후 해시태그로 복사할 수 있어요.
       </p>
-    </div>
+    </Card>
   )
 }

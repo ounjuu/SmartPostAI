@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import { Label } from "./ui"
 
 interface PhotoUploaderProps {
   photos: string[]
@@ -37,9 +38,7 @@ export default function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderP
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-semibold text-gray-700">
-        사진 추가 (최대 5장)
-      </label>
+      <Label>사진 추가 (최대 5장)</Label>
 
       <div className="grid grid-cols-3 gap-2">
         {photos.map((photo, index) => (

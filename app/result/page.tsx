@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import BlogPreview from "@/components/BlogPreview"
 import CopyAndOpen from "@/components/CopyAndOpen"
 import KeywordPanel from "@/components/KeywordPanel"
+import { PageLayout, PageHeader } from "@/components/ui"
 
 interface GeneratedPost {
   title: string
@@ -28,24 +29,15 @@ export default function ResultPage() {
 
   if (!post) {
     return (
-      <main className="max-w-lg mx-auto px-4 py-6 text-center">
-        <p className="text-gray-500">로딩 중...</p>
-      </main>
+      <PageLayout>
+        <p className="text-gray-500 text-center">로딩 중...</p>
+      </PageLayout>
     )
   }
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-6">
-      <header className="flex items-center justify-between mb-6">
-        <button
-          onClick={() => router.push("/")}
-          className="text-sm text-gray-500 hover:text-gray-700"
-        >
-          &larr; 다시 작성
-        </button>
-        <h1 className="text-lg font-bold text-gray-900">미리보기</h1>
-        <div className="w-16" />
-      </header>
+    <PageLayout>
+      <PageHeader title="미리보기" onBack={() => router.push("/")} />
 
       <div className="space-y-6">
         <BlogPreview
@@ -62,6 +54,6 @@ export default function ResultPage() {
 
         <CopyAndOpen title={post.title} content={post.content} />
       </div>
-    </main>
+    </PageLayout>
   )
 }

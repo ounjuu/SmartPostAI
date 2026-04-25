@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Card, Label, inputClass, textareaClass, btnSecondary } from "./ui"
 
 interface BlogPreviewProps {
   title: string
@@ -21,26 +22,23 @@ export default function BlogPreview({
     return (
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">제목</label>
+          <Label>제목</Label>
           <input
             type="text"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className={inputClass + " mt-1"}
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">본문 (HTML)</label>
+          <Label>본문 (HTML)</Label>
           <textarea
             value={content}
             onChange={(e) => onContentChange(e.target.value)}
-            className="w-full h-64 p-3 border border-gray-200 rounded-xl text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className={textareaClass("h-64") + " mt-1 text-xs font-mono"}
           />
         </div>
-        <button
-          onClick={() => setIsEditing(false)}
-          className="w-full py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-        >
+        <button onClick={() => setIsEditing(false)} className={btnSecondary}>
           미리보기로 돌아가기
         </button>
       </div>
@@ -49,7 +47,7 @@ export default function BlogPreview({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      <Card className="overflow-hidden !p-0">
         <div className="p-4 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-900">{title}</h2>
         </div>
@@ -57,11 +55,8 @@ export default function BlogPreview({
           className="p-4 prose prose-sm max-w-none text-gray-700 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: content }}
         />
-      </div>
-      <button
-        onClick={() => setIsEditing(true)}
-        className="w-full py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-      >
+      </Card>
+      <button onClick={() => setIsEditing(true)} className={btnSecondary}>
         직접 수정하기
       </button>
     </div>

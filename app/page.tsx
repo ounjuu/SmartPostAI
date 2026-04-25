@@ -68,7 +68,7 @@ export default function Home() {
       <header className="text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900">SmartPostAI</h1>
         <p className="text-sm text-gray-500 mt-1">
-          사진과 메모만 입력하면 블로그 글이 완성돼요
+          사진만 올려도 한톨 말투로 블로그 글이 완성돼요 🌾
         </p>
       </header>
 
