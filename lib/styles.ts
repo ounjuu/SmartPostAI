@@ -1,4 +1,4 @@
-export interface StylePreset {
+interface StylePreset {
   id: string
   name: string
   description: string
