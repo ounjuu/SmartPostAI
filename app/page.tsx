@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import PhotoUploader from "@/components/PhotoUploader"
 import MemoInput from "@/components/MemoInput"
 import StyleSelector from "@/components/StyleSelector"
-import { getCustomStyles } from "@/lib/styles"
+import { getCustomStyles, STYLE_PRESETS } from "@/lib/styles"
 
 export default function Home() {
   const router = useRouter()
@@ -14,6 +14,9 @@ export default function Home() {
   const [styleId, setStyleId] = useState("restaurant")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  const selectedPreset = STYLE_PRESETS.find((p) => p.id === styleId)
+  const memoGuide = selectedPreset?.memoGuide
 
   const canGenerate = photos.length > 0 || memo.trim().length > 0
 
@@ -74,7 +77,7 @@ export default function Home() {
 
       <div className="space-y-6">
         <PhotoUploader photos={photos} onPhotosChange={setPhotos} />
-        <MemoInput memo={memo} onMemoChange={setMemo} />
+        <MemoInput memo={memo} onMemoChange={setMemo} placeholder={memoGuide} />
         <StyleSelector selectedStyle={styleId} onStyleChange={setStyleId} />
 
         {error && (

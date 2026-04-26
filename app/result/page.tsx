@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import BlogPreview from "@/components/BlogPreview"
 import CopyAndOpen from "@/components/CopyAndOpen"
+import TistoryPublish from "@/components/TistoryPublish"
 import KeywordPanel from "@/components/KeywordPanel"
 import { PageLayout, PageHeader } from "@/components/ui"
 
@@ -53,6 +54,17 @@ export default function ResultPage() {
         />
 
         <CopyAndOpen title={post.title} content={post.content} />
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white px-3 text-xs text-gray-400">또는</span>
+          </div>
+        </div>
+
+        <TistoryPublish title={post.title} content={post.content} />
       </div>
     </PageLayout>
   )
