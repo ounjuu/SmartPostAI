@@ -9,7 +9,7 @@ export async function generateBlogPost(
   styleId?: string,
   customSamples?: string[]
 ): Promise<{ title: string; content: string; keywords: string[] }> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
   // 스타일별 프롬프트 구성
   let styleInstruction = ""
