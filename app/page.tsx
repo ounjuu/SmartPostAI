@@ -53,6 +53,8 @@ export default function Home() {
         JSON.stringify({
           title: data.title,
           content: data.content,
+          tistoryTitle: data.tistoryTitle || data.title,
+          tistoryContent: data.tistoryContent || "",
           keywords: data.keywords || [],
           photos,
         })
