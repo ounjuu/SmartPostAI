@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import PhotoUploader from "@/components/PhotoUploader"
 import MemoInput from "@/components/MemoInput"
 import StyleSelector from "@/components/StyleSelector"
@@ -57,6 +58,8 @@ export default function Home() {
           tistoryContent: data.tistoryContent || "",
           keywords: data.keywords || [],
           photos,
+          memo,
+          styleId,
         })
       )
 
@@ -87,6 +90,13 @@ export default function Home() {
             {error}
           </div>
         )}
+
+        <Link
+          href="/history"
+          className="block text-center text-sm text-gray-400 hover:text-green-500 transition-colors"
+        >
+          이전 글 보기 &rarr;
+        </Link>
 
         <button
           onClick={handleGenerate}
