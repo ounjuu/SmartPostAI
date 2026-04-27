@@ -91,12 +91,20 @@ export default function Home() {
           </div>
         )}
 
-        <Link
-          href="/history"
-          className="block text-center text-sm text-gray-400 hover:text-green-500 transition-colors"
-        >
-          이전 글 보기 &rarr;
-        </Link>
+        <div className="flex justify-center gap-4">
+          <Link
+            href="/convert"
+            className="text-sm text-blue-400 hover:text-blue-500 transition-colors"
+          >
+            기존 글 변환 &rarr;
+          </Link>
+          <Link
+            href="/history"
+            className="text-sm text-gray-400 hover:text-green-500 transition-colors"
+          >
+            이전 글 보기 &rarr;
+          </Link>
+        </div>
 
         <button
           onClick={handleGenerate}
