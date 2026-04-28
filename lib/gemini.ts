@@ -94,8 +94,15 @@ ${exampleSection}
     }
   }
 
-  const result = await model.generateContent(parts)
-  const text = result.response.text()
+  let text: string
+  try {
+    const result = await model.generateContent(parts)
+    text = result.response.text()
+  } catch {
+    const fallback = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
+    const result = await fallback.generateContent(parts)
+    text = result.response.text()
+  }
 
   const jsonMatch = text.match(/\{[\s\S]*"title"[\s\S]*"content"[\s\S]*\}/)
   if (!jsonMatch) {

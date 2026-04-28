@@ -51,8 +51,16 @@ ${originalText}
   "keywords": ["키워드1", "키워드2", ...]
 }`
 
-  const result = await model.generateContent(prompt)
-  const text = result.response.text()
+  let text: string
+  try {
+    const result = await model.generateContent(prompt)
+    text = result.response.text()
+  } catch {
+    // 폴백: gemini-2.0-flash
+    const fallback = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
+    const result = await fallback.generateContent(prompt)
+    text = result.response.text()
+  }
 
   const jsonMatch = text.match(/\{[\s\S]*"title"[\s\S]*"content"[\s\S]*\}/)
   if (!jsonMatch) {
