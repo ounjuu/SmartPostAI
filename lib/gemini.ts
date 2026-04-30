@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { STYLE_PRESETS } from "./styles"
+import { callWithRetry } from "./retry"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -17,7 +18,12 @@ export async function generateBlogPost(
   styleId?: string,
   customSamples?: string[]
 ): Promise<BlogResult> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: {
+      maxOutputTokens: 8192,
+    },
+  })
 
   // 스타일별 프롬프트 구성
   let styleInstruction = ""
@@ -94,15 +100,8 @@ ${exampleSection}
     }
   }
 
-  let text: string
-  try {
-    const result = await model.generateContent(parts)
-    text = result.response.text()
-  } catch {
-    const fallback = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
-    const result = await fallback.generateContent(parts)
-    text = result.response.text()
-  }
+  const result = await callWithRetry(() => model.generateContent(parts))
+  const text = result.response.text()
 
   const jsonMatch = text.match(/\{[\s\S]*"title"[\s\S]*"content"[\s\S]*\}/)
   if (!jsonMatch) {

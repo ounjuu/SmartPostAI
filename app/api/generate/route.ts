@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { generateBlogPost } from "@/lib/gemini"
+import { isOverloadedError } from "@/lib/retry"
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +30,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result)
   } catch (error) {
     console.error("Blog generation error:", error)
+    if (isOverloadedError(error)) {
+      return NextResponse.json(
+        { error: "Gemini 서버가 잠시 혼잡해요. 30초 후 다시 시도해주세요." },
+        { status: 503 }
+      )
+    }
     return NextResponse.json(
       { error: "블로그 글 생성 중 오류가 발생했습니다. 다시 시도해주세요." },
       { status: 500 }

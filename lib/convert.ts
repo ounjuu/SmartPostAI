@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { callWithRetry } from "./retry"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -13,7 +14,12 @@ interface ConvertResult {
 export async function convertBlogPost(
   originalText: string
 ): Promise<ConvertResult> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: {
+      maxOutputTokens: 8192,
+    },
+  })
 
   const prompt = `당신은 블로그 글 변환 전문가입니다.
 아래 기존 블로그 글을 **네이버 블로그용**과 **티스토리용** 2가지 버전으로 변환해주세요.
@@ -51,16 +57,8 @@ ${originalText}
   "keywords": ["키워드1", "키워드2", ...]
 }`
 
-  let text: string
-  try {
-    const result = await model.generateContent(prompt)
-    text = result.response.text()
-  } catch {
-    // 폴백: gemini-2.0-flash
-    const fallback = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
-    const result = await fallback.generateContent(prompt)
-    text = result.response.text()
-  }
+  const result = await callWithRetry(() => model.generateContent(prompt))
+  const text = result.response.text()
 
   const jsonMatch = text.match(/\{[\s\S]*"title"[\s\S]*"content"[\s\S]*\}/)
   if (!jsonMatch) {
