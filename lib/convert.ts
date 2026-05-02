@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { callWithRetry } from "./retry"
+import { stripMarkdown } from "./markdown"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -40,6 +41,8 @@ ${originalText}
 - ~합니다, ~입니다 정중한 톤
 - 이모지 최소화 (소제목에만)
 - HTML 태그 없이 순수 텍스트 (줄바꿈은 \\n)
+- **마크다운 문법 절대 사용 금지**: \`**굵게**\`, \`### 제목\`, \`*기울임*\`, \`\\\`코드\\\`\`, \`[링크](url)\`, \`- 리스트\` 등 모든 마크다운 기호 사용 X
+- 강조하고 싶어도 \`**\`나 \`##\` 없이 자연스러운 문장으로 표현
 - 표 대신 "· 항목: 내용" 불릿으로 정리
 - 해시태그 마지막에 추가
 
@@ -69,8 +72,8 @@ ${originalText}
   return {
     title: parsed.title,
     content: parsed.content,
-    tistoryTitle: parsed.tistoryTitle || parsed.title,
-    tistoryContent: parsed.tistoryContent || "",
+    tistoryTitle: stripMarkdown(parsed.tistoryTitle || parsed.title),
+    tistoryContent: stripMarkdown(parsed.tistoryContent || ""),
     keywords: parsed.keywords || [],
   }
 }

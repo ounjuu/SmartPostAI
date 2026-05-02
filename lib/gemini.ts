@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { STYLE_PRESETS } from "./styles"
 import { callWithRetry } from "./retry"
+import { stripMarkdown } from "./markdown"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -57,6 +58,8 @@ ${exampleSection}
 - "오늘도 한 톨, 저장 완료입니다 🌾" 시그니처 X
 - 정보 전달 위주, 구조적으로 정리
 - HTML 태그 없이 순수 텍스트 (줄바꿈만 \\n 사용)
+- **마크다운 문법 절대 사용 금지**: \`**굵게**\`, \`### 제목\`, \`*기울임*\`, \`\\\`코드\\\`\`, \`[링크](url)\`, \`- 리스트\` 등 모든 마크다운 기호 사용 X
+- 강조하고 싶어도 \`**\`나 \`##\` 없이 자연스러운 문장으로 표현
 - 표 대신 "항목: 내용" 또는 "· 항목" 불릿으로 정리
 - 해시태그는 #태그 형태로 마지막에
 
@@ -64,7 +67,7 @@ ${exampleSection}
 - 제목은 호기심을 끄는 스타일로 작성
 - 사진이 있다면 각 사진에 대한 자연스러운 설명을 포함
 - 네이버용: HTML 서식 사용 (줄바꿈은 <br>, 굵은 글씨는 <b>, 구분선은 <hr>)
-- 티스토리용: HTML 태그 없이 순수 텍스트
+- 티스토리용: HTML 태그 없이 순수 텍스트, 마크다운 기호(**, ##, \`, [], 등) 일체 사용 금지
 - 해시태그를 글 마지막에 5~10개 추가
 - 예시 글은 스타일 참고용이며, 내용을 그대로 복사하지 마세요
 
@@ -112,8 +115,8 @@ ${exampleSection}
   return {
     title: parsed.title,
     content: parsed.content,
-    tistoryTitle: parsed.tistoryTitle || parsed.title,
-    tistoryContent: parsed.tistoryContent || "",
+    tistoryTitle: stripMarkdown(parsed.tistoryTitle || parsed.title),
+    tistoryContent: stripMarkdown(parsed.tistoryContent || ""),
     keywords: parsed.keywords || [],
   }
 }
