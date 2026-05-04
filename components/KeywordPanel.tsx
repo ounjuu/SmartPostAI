@@ -24,22 +24,9 @@ export default function KeywordPanel({ keywords, onKeywordsChange }: KeywordPane
     onKeywordsChange(keywords.filter((_, i) => i !== index))
   }
 
-  const copyKeywords = async () => {
-    const text = keywords.map((k) => `#${k}`).join(" ")
-    await navigator.clipboard.writeText(text)
-  }
-
   return (
     <Card className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">SEO 추천 키워드</h3>
-        <button
-          onClick={copyKeywords}
-          className="text-xs text-blue-500 hover:text-blue-600"
-        >
-          해시태그 복사
-        </button>
-      </div>
+      <h3 className="text-sm font-semibold text-gray-700">SEO 추천 키워드</h3>
 
       <div className="flex flex-wrap gap-2">
         {keywords.map((keyword, index) => (
@@ -76,7 +63,7 @@ export default function KeywordPanel({ keywords, onKeywordsChange }: KeywordPane
       </div>
 
       <p className="text-xs text-gray-400">
-        네이버 검색 노출에 유리한 키워드입니다. 수정/추가/삭제 후 해시태그로 복사할 수 있어요.
+        네이버 검색 노출에 유리한 키워드입니다. 본문 마지막 해시태그를 참고용으로 보여드려요.
       </p>
     </Card>
   )

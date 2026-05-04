@@ -8,11 +8,14 @@ import MemoInput from "@/components/MemoInput"
 import StyleSelector from "@/components/StyleSelector"
 import { getCustomStyles, STYLE_PRESETS } from "@/lib/styles"
 
+type Platform = "naver" | "tistory"
+
 export default function Home() {
   const router = useRouter()
   const [photos, setPhotos] = useState<string[]>([])
   const [memo, setMemo] = useState("")
   const [styleId, setStyleId] = useState("restaurant")
+  const [platform, setPlatform] = useState<Platform>("naver")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -40,7 +43,7 @@ export default function Home() {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photos, memo, styleId, customSamples }),
+        body: JSON.stringify({ photos, memo, styleId, customSamples, platform }),
       })
 
       if (!response.ok) {
@@ -52,14 +55,15 @@ export default function Home() {
       sessionStorage.setItem(
         "generatedPost",
         JSON.stringify({
-          title: data.title,
-          content: data.content,
-          tistoryTitle: data.tistoryTitle || data.title,
-          tistoryContent: data.tistoryContent || "",
+          naverTitle: platform === "naver" ? data.title : "",
+          naverContent: platform === "naver" ? data.content : "",
+          tistoryTitle: platform === "tistory" ? data.title : "",
+          tistoryContent: platform === "tistory" ? data.content : "",
           keywords: data.keywords || [],
           photos,
           memo,
           styleId,
+          platforms: [platform],
         })
       )
 
@@ -84,6 +88,35 @@ export default function Home() {
         <PhotoUploader photos={photos} onPhotosChange={setPhotos} />
         <MemoInput memo={memo} onMemoChange={setMemo} placeholder={memoGuide} />
         <StyleSelector selectedStyle={styleId} onStyleChange={setStyleId} />
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            발행 플랫폼
+          </label>
+          <div className="flex rounded-xl bg-gray-100 p-1">
+            <button
+              type="button"
+              onClick={() => setPlatform("naver")}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                platform === "naver" ? "bg-green-500 text-white" : "text-gray-500"
+              }`}
+            >
+              네이버 블로그
+            </button>
+            <button
+              type="button"
+              onClick={() => setPlatform("tistory")}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                platform === "tistory" ? "bg-orange-500 text-white" : "text-gray-500"
+              }`}
+            >
+              티스토리
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-1.5">
+            먼저 한 곳만 생성하고, 결과 화면에서 다른 플랫폼도 추가로 만들 수 있어요
+          </p>
+        </div>
 
         {error && (
           <div className="p-3 bg-red-50 text-red-600 text-sm rounded-xl">

@@ -27,11 +27,18 @@ export function getHistory(): HistoryItem[] {
 }
 
 export function saveToHistory(item: Omit<HistoryItem, "id" | "createdAt">): void {
+  // 네이버/티스토리 중 하나라도 본문이 있어야 저장
+  if (!item.content && !item.tistoryContent) return
+
   const history = getHistory()
 
-  // 중복 방지: 같은 title + content가 이미 있으면 저장하지 않음
+  // 중복 방지: 네이버/티스토리 본문이 모두 동일하면 저장하지 않음
   const isDuplicate = history.some(
-    (h) => h.title === item.title && h.content === item.content
+    (h) =>
+      h.content === item.content &&
+      h.tistoryContent === item.tistoryContent &&
+      h.title === item.title &&
+      h.tistoryTitle === item.tistoryTitle
   )
   if (isDuplicate) return
 

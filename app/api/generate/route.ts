@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { generateBlogPost } from "@/lib/gemini"
+import { generateBlogPost, type Platform } from "@/lib/gemini"
 import { isOverloadedError } from "@/lib/retry"
 
 export async function POST(request: NextRequest) {
   try {
-    const { photos, memo, styleId, customSamples } = await request.json()
+    const { photos, memo, styleId, customSamples, platform } = await request.json()
 
     if (!photos?.length && !memo?.trim()) {
       return NextResponse.json(
@@ -12,6 +12,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    const targetPlatform: Platform = platform === "tistory" ? "tistory" : "naver"
 
     if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "your_gemini_api_key_here") {
       return NextResponse.json(
@@ -24,10 +26,11 @@ export async function POST(request: NextRequest) {
       photos || [],
       memo || "",
       styleId,
-      customSamples
+      customSamples,
+      targetPlatform
     )
 
-    return NextResponse.json(result)
+    return NextResponse.json({ ...result, platform: targetPlatform })
   } catch (error) {
     console.error("Blog generation error:", error)
     if (isOverloadedError(error)) {

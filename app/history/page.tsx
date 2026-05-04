@@ -114,7 +114,7 @@ export default function HistoryPage() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-sm font-bold text-gray-900 line-clamp-1 flex-1">
-                    {item.title}
+                    {item.title || item.tistoryTitle}
                   </h3>
                   <button
                     onClick={(e) => {
@@ -128,7 +128,7 @@ export default function HistoryPage() {
                   </button>
                 </div>
                 <p className="text-xs text-gray-400 mt-1 line-clamp-2">
-                  {getPreviewText(item.content)}
+                  {getPreviewText(item.content || item.tistoryContent)}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs text-gray-400">
