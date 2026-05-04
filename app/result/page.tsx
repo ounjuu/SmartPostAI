@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import BlogPreview from "@/components/BlogPreview"
 import CopyAndOpen from "@/components/CopyAndOpen"
-import KeywordPanel from "@/components/KeywordPanel"
 import { PageLayout, PageHeader } from "@/components/ui"
 import { getCustomStyles } from "@/lib/styles"
 import { saveToHistory } from "@/lib/history"
@@ -253,15 +252,6 @@ export default function ResultPage() {
           </button>
         )}
 
-        <KeywordPanel
-          keywords={post.keywords}
-          onKeywordsChange={(keywords) => {
-            const next = { ...post, keywords }
-            setPost(next)
-            persist(next)
-          }}
-        />
-
         {error && (
           <div className="p-3 bg-red-50 text-red-600 text-sm rounded-xl">
             {error}
@@ -291,6 +281,7 @@ export default function ResultPage() {
           naverContent={hasNaver ? post.naverContent : ""}
           tistoryTitle={hasTistory ? post.tistoryTitle : ""}
           tistoryContent={hasTistory ? post.tistoryContent : ""}
+          keywords={post.keywords}
           disabled={busyPlatform !== null}
         />
       </div>

@@ -1,24 +1,26 @@
 "use client"
 
 import { useState } from "react"
-import { copyHtmlToClipboard, openNaverBlog } from "@/lib/clipboard"
+import { copyHtmlToClipboard, htmlToPlainText, openNaverBlog } from "@/lib/clipboard"
 
 interface CopyAndOpenProps {
   naverTitle: string
   naverContent: string
   tistoryTitle: string
   tistoryContent: string
+  keywords?: string[]
   disabled?: boolean
 }
 
-export default function CopyAndOpen({ naverTitle, naverContent, tistoryTitle, tistoryContent, disabled = false }: CopyAndOpenProps) {
+export default function CopyAndOpen({ naverTitle, naverContent, tistoryTitle, tistoryContent, keywords = [], disabled = false }: CopyAndOpenProps) {
   const [copiedTarget, setCopiedTarget] = useState<string | null>(null)
 
   const hasNaver = naverContent.length > 0
   const hasTistory = tistoryContent.length > 0
+  const hasKeywords = keywords.length > 0
 
   const naverHtml = `<h2>${naverTitle}</h2>${naverContent}`
-  const naverPlain = `${naverTitle}\n\n${naverContent.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")}`
+  const naverPlain = `${naverTitle}\n\n${htmlToPlainText(naverContent)}`
 
   const setCopiedFeedback = (target: string) => {
     setCopiedTarget(target)
@@ -47,6 +49,12 @@ export default function CopyAndOpen({ naverTitle, naverContent, tistoryTitle, ti
   const handleCopyTistory = async () => {
     await navigator.clipboard.writeText(`${tistoryTitle}\n\n${tistoryContent}`)
     setCopiedFeedback("copyTistory")
+  }
+
+  const handleCopyHashtags = async () => {
+    const text = keywords.map((k) => `#${k}`).join(" ")
+    await navigator.clipboard.writeText(text)
+    setCopiedFeedback("copyHashtags")
   }
 
   return (
@@ -92,6 +100,16 @@ export default function CopyAndOpen({ naverTitle, naverContent, tistoryTitle, ti
             </button>
           )}
         </div>
+      )}
+
+      {hasKeywords && (
+        <button
+          onClick={handleCopyHashtags}
+          disabled={disabled}
+          className="w-full py-3 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {copiedTarget === "copyHashtags" ? "해시태그 복사 완료!" : `해시태그 복사 (#${keywords.length}개)`}
+        </button>
       )}
     </div>
   )
