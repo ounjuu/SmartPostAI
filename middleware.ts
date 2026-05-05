@@ -12,7 +12,18 @@ export function middleware(request: NextRequest) {
   }
 
   const authed = request.cookies.get("site_auth")?.value === "1"
-  if (authed) return NextResponse.next()
+  if (authed) {
+    // 요청마다 만료를 30일 뒤로 갱신 (슬라이딩 세션)
+    const response = NextResponse.next()
+    response.cookies.set("site_auth", "1", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    })
+    return response
+  }
 
   const loginUrl = request.nextUrl.clone()
   loginUrl.pathname = "/login"
