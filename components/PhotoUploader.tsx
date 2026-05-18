@@ -11,21 +11,26 @@ interface PhotoUploaderProps {
 export default function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const remainingSlots = 5 - photos.length
     const filesToProcess = Array.from(files).slice(0, remainingSlots)
 
-    filesToProcess.forEach((file) => {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const base64 = event.target?.result as string
-        onPhotosChange([...photos, base64])
-      }
-      reader.readAsDataURL(file)
-    })
+    const base64List = await Promise.all(
+      filesToProcess.map(
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = (event) => resolve(event.target?.result as string)
+            reader.onerror = () => reject(reader.error)
+            reader.readAsDataURL(file)
+          })
+      )
+    )
+
+    onPhotosChange([...photos, ...base64List])
 
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
