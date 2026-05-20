@@ -27,15 +27,26 @@ export default function HistoryPage() {
   }
 
   const handleItemClick = (item: HistoryItem) => {
+    const platforms =
+      item.platforms && item.platforms.length > 0
+        ? item.platforms
+        : [
+            ...(item.content ? (["naver"] as const) : []),
+            ...(item.tistoryContent ? (["tistory"] as const) : []),
+          ]
+
     sessionStorage.setItem(
       "generatedPost",
       JSON.stringify({
-        title: item.title,
-        content: item.content,
+        naverTitle: item.title,
+        naverContent: item.content,
         tistoryTitle: item.tistoryTitle,
         tistoryContent: item.tistoryContent,
         keywords: item.keywords,
         photos: [],
+        memo: item.memo ?? "",
+        styleId: item.styleId,
+        platforms,
       })
     )
     router.push("/result")

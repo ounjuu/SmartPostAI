@@ -1,3 +1,5 @@
+export type HistoryPlatform = "naver" | "tistory"
+
 export interface HistoryItem {
   id: string
   title: string
@@ -6,6 +8,8 @@ export interface HistoryItem {
   tistoryContent: string
   keywords: string[]
   styleId: string
+  memo?: string
+  platforms?: HistoryPlatform[]
   createdAt: string
 }
 

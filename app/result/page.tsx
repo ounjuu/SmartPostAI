@@ -58,6 +58,8 @@ function persist(post: GeneratedPost) {
     tistoryContent: post.tistoryContent,
     keywords: post.keywords,
     styleId: post.styleId || "",
+    memo: post.memo,
+    platforms: post.platforms,
   })
 }
 
