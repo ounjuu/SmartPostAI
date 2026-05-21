@@ -49,16 +49,34 @@ export async function copyHtmlToClipboard(html: string, plainText: string): Prom
 export function openNaverBlog() {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-  if (isMobile) {
-    const deepLink = "naverblog://post"
-    const webFallback = "https://blog.naver.com"
-
-    window.location.href = deepLink
-
-    setTimeout(() => {
-      window.location.href = webFallback
-    }, 2000)
-  } else {
+  if (!isMobile) {
     window.open("https://blog.naver.com", "_blank")
+    return
   }
+
+  const deepLink = "naverblog://post"
+  const webFallback = "https://blog.naver.com"
+
+  let cancelled = false
+  const cancel = () => {
+    cancelled = true
+    document.removeEventListener("visibilitychange", onHide)
+    window.removeEventListener("pagehide", onHide)
+    window.removeEventListener("blur", onHide)
+  }
+  const onHide = () => {
+    if (document.visibilityState === "hidden" || document.hidden) cancel()
+  }
+
+  document.addEventListener("visibilitychange", onHide)
+  window.addEventListener("pagehide", onHide)
+  window.addEventListener("blur", onHide)
+
+  window.location.href = deepLink
+
+  setTimeout(() => {
+    if (cancelled) return
+    cancel()
+    window.location.href = webFallback
+  }, 1500)
 }
