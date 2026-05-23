@@ -52,7 +52,10 @@ export default function CopyAndOpen({ naverTitle, naverContent, tistoryTitle, ti
   }
 
   const handleCopyHashtags = async () => {
-    const text = keywords.map((k) => `#${k}`).join(" ")
+    const text = keywords
+      .map((k) => `#${k.replace(/\s+/g, "")}`)
+      .filter((tag) => tag.length > 1)
+      .join(" ")
     await navigator.clipboard.writeText(text)
     setCopiedFeedback("copyHashtags")
   }
