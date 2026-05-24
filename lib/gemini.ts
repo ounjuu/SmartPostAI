@@ -19,18 +19,35 @@ const NAVER_PLATFORM_RULES = `
 - 표는 HTML <table border="1" style="border-collapse:collapse"> 사용
 - 코드는 <pre><code> 태그`
 
-const TISTORY_PLATFORM_RULES = `
-## 티스토리용 톤·형식 (위 스타일 가이드의 한톨 톤 규칙은 무시하고 다음 규칙으로 작성)
-- ~합니다, ~입니다 정중한 톤 (개발 블로그 느낌)
-- 이모지 최소화 (소제목에만 간결하게)
-- "안녕하세요 한톨입니다 😊" 시작 X → 바로 본론으로
-- "오늘도 한 톨, 저장 완료입니다 🌾" 시그니처 X
-- 정보 전달 위주, 구조적으로 정리
+const TISTORY_FORMAT_RULES = `
 - HTML 태그 없이 순수 텍스트 (줄바꿈만 \\n 사용)
 - **마크다운 문법 절대 사용 금지**: \`**굵게**\`, \`### 제목\`, \`*기울임*\`, \`\\\`코드\\\`\`, \`[링크](url)\`, \`- 리스트\` 등 모든 마크다운 기호 사용 X
 - 강조하고 싶어도 \`**\`나 \`##\` 없이 자연스러운 문장으로 표현
 - 표 대신 "항목: 내용" 또는 "· 항목" 불릿으로 정리
-- 해시태그는 #태그 형태로 마지막에`
+- 해시태그는 #태그 형태로 마지막에
+- "안녕하세요 한톨입니다 😊" 시작 X, "오늘도 한 톨, 저장 완료입니다 🌾" 시그니처 X`
+
+const TISTORY_FORMAL_RULES = `
+## 티스토리용 톤·형식 (위 스타일 가이드의 한톨 톤 규칙은 무시하고 다음 규칙으로 작성)
+- ~합니다, ~입니다 정중한 톤 (개발 블로그 느낌)
+- 이모지 최소화 (소제목에만 간결하게)
+- 정보 전달 위주, 구조적으로 정리
+${TISTORY_FORMAT_RULES}`
+
+const TISTORY_CASUAL_RULES = `
+## 티스토리용 톤·형식 (위 스타일 가이드의 한톨 톤은 참고하되, 아래 규칙을 따르세요)
+- ~해요, ~네요, ~더라고요 친근하지만 절제된 톤 (네이버처럼 과한 감탄/이모지는 X, 그렇다고 ~합니다 딱딱한 톤도 X)
+- "정말 맛있어요!!!" 같은 과한 감탄·느낌표 남발 자제 (느낌표는 글 전체에 2~3개 정도)
+- 이모지 매우 적게 (글 전체에 2~3개 이내, 소제목에는 X)
+- 경험담과 정보 전달의 균형 (감성 위주가 아닌 차분한 후기 느낌)
+${TISTORY_FORMAT_RULES}`
+
+const TISTORY_FORMAL_STYLES = new Set(["tech", "devlog"])
+
+function getTistoryRules(styleId: string | undefined): string {
+  if (styleId && TISTORY_FORMAL_STYLES.has(styleId)) return TISTORY_FORMAL_RULES
+  return TISTORY_CASUAL_RULES
+}
 
 export async function generateBlogPost(
   photos: string[],
@@ -73,7 +90,7 @@ export async function generateBlogPost(
     exampleSection = `[예시 글]\n${preset.examplePost}`
   }
 
-  const platformRules = platform === "naver" ? NAVER_PLATFORM_RULES : TISTORY_PLATFORM_RULES
+  const platformRules = platform === "naver" ? NAVER_PLATFORM_RULES : getTistoryRules(styleId)
 
   const prompt = `당신은 블로그 작성 전문가입니다.
 사용자가 제공한 사진과 메모를 바탕으로 ${platform === "naver" ? "**네이버 블로그용**" : "**티스토리용**"} 글을 작성해주세요.
