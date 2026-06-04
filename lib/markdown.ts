@@ -31,3 +31,28 @@ export function stripMarkdown(text: string): string {
 
   return result
 }
+
+// 본문에서 강조용 따옴표를 제거한다 (' ', " ", '', "" 모두 대응).
+// HTML 본문일 경우 태그 속성 안의 따옴표는 건드리지 않도록 태그 바깥 텍스트만 처리한다.
+export function stripEmphasisQuotes(text: string, isHtml: boolean): string {
+  if (!text) return text
+
+  const stripInText = (s: string): string => {
+    let out = s
+    // 한국식 스마트 따옴표 (HTML 속성에 안 쓰임 → 무조건 제거)
+    out = out.replace(/[‘’]([^‘’\n]{1,60})[‘’]/g, "$1")
+    out = out.replace(/[“”]([^“”\n]{1,60})[“”]/g, "$1")
+    // ASCII 따옴표 — 짧은 강조 구문만 제거 (긴 문장/대화 인용은 보존)
+    out = out.replace(/'([^'\n]{1,30})'/g, "$1")
+    out = out.replace(/"([^"\n]{1,30})"/g, "$1")
+    return out
+  }
+
+  if (!isHtml) return stripInText(text)
+
+  // HTML: 태그 (<...>) 는 그대로 두고 텍스트 구간에서만 따옴표 제거
+  return text.replace(/<[^>]*>|[^<]+/g, (chunk) => {
+    if (chunk.startsWith("<")) return chunk
+    return stripInText(chunk)
+  })
+}

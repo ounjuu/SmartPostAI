@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { callWithRetry } from "./retry"
-import { stripMarkdown } from "./markdown"
+import { stripMarkdown, stripEmphasisQuotes } from "./markdown"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -75,10 +75,10 @@ ${originalText}
 
   const parsed = JSON.parse(jsonMatch[0])
   return {
-    title: parsed.title,
-    content: parsed.content,
-    tistoryTitle: stripMarkdown(parsed.tistoryTitle || parsed.title),
-    tistoryContent: stripMarkdown(parsed.tistoryContent || ""),
+    title: stripEmphasisQuotes(parsed.title, false),
+    content: stripEmphasisQuotes(parsed.content, true),
+    tistoryTitle: stripEmphasisQuotes(stripMarkdown(parsed.tistoryTitle || parsed.title), false),
+    tistoryContent: stripEmphasisQuotes(stripMarkdown(parsed.tistoryContent || ""), false),
     keywords: parsed.keywords || [],
   }
 }

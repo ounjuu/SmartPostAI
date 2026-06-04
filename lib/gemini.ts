@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai"
 import { STYLE_PRESETS } from "./styles"
 import { callWithRetry } from "./retry"
-import { stripMarkdown } from "./markdown"
+import { stripMarkdown, stripEmphasisQuotes } from "./markdown"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -177,9 +177,16 @@ JSON 형식으로 응답하세요:
   const content = parsed.content || ""
   const keywords: string[] = parsed.keywords || []
 
+  const isNaver = platform === "naver"
+  const cleanedTitle = stripEmphasisQuotes(isNaver ? title : stripMarkdown(title), false)
+  const cleanedContent = stripEmphasisQuotes(
+    isNaver ? content : stripMarkdown(content),
+    isNaver
+  )
+
   return {
-    title: platform === "tistory" ? stripMarkdown(title) : title,
-    content: platform === "tistory" ? stripMarkdown(content) : content,
+    title: cleanedTitle,
+    content: cleanedContent,
     keywords,
   }
 }
