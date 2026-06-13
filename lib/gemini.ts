@@ -42,6 +42,19 @@ const TISTORY_CASUAL_RULES = `
 - 경험담과 정보 전달의 균형 (감성 위주가 아닌 차분한 후기 느낌)
 ${TISTORY_FORMAT_RULES}`
 
+const NAVER_RESTAURANT_SEO_RULES = `
+## 맛집·카페 글 추가 규칙 (네이버 검색 노출 최적화)
+- **제목은 검색 키워드형으로 작성**: "지역 + 음식/업종 + 조건어" 순서로 핵심 키워드를 앞쪽에 배치하세요. (네이버 검색 노출 목적)
+  - 조건어 예시: 주차 / 웨이팅 / 예약 / 룸 / 혼밥 / 데이트 / 아이랑 / 가성비 / 포장
+  - 좋은 예: "영통 디저트카페 주차되는곳", "수원역 소고기 룸있는집"
+  - 이 글에 한해서는 제목 규칙의 "호기심 끄는 25~40자" 기준보다 검색 키워드형 제목을 우선합니다.
+  - 대괄호 태그는 [지역 업종] 형태로 붙이고(예: [영통 카페], [수원역 맛집]), 그 뒤에 지역+음식+조건어 제목을 이어쓰세요.
+- **본문 맨 위(도입 직후)에 핵심 정보부터 배치**: 사람들이 가장 궁금해하는 위치·주차·영업시간·웨이팅·메뉴·가격을 본문 위쪽 정보 박스에 먼저 정리하세요. 감성 스토리·디테일 묘사는 그다음입니다.
+- **⚠️ 지어내기 금지 (가장 중요)**: 메모/사진에서 실제로 확인되지 않는 정보는 절대 만들어내지 마세요.
+  - 지역명·조건어(주차/웨이팅/룸 등)·주소·영업시간·가격은 메모에 실제로 있을 때만 제목과 정보 박스에 넣으세요.
+  - 메모에 지역이나 조건 정보가 없으면 가짜 지역명("영통" 등)이나 조건어("주차되는곳" 등)를 만들어 넣지 말고, 확인되는 정보만으로 제목을 구성하거나 그 부분 없이 일반적인 제목을 쓰세요.
+  - 사진만 보고 글을 쓸 때도 지역·주차·영업시간 같은 사진으로 알 수 없는 정보는 추측해서 채우지 말고, 정보 박스에서 해당 항목을 생략하세요.`
+
 const TISTORY_FORMAL_STYLES = new Set(["tech", "devlog"])
 
 function getTistoryRules(styleId: string | undefined): string {
@@ -91,6 +104,8 @@ export async function generateBlogPost(
   }
 
   const platformRules = platform === "naver" ? NAVER_PLATFORM_RULES : getTistoryRules(styleId)
+  const restaurantSeoRules =
+    platform === "naver" && styleId === "restaurant" ? NAVER_RESTAURANT_SEO_RULES : ""
 
   const prompt = `당신은 블로그 작성 전문가입니다.
 사용자가 제공한 사진과 메모를 바탕으로 ${platform === "naver" ? "**네이버 블로그용**" : "**티스토리용**"} 글을 작성해주세요.
@@ -105,6 +120,7 @@ ${styleInstruction}
 ## 참고할 예시
 ${exampleSection}
 ${platformRules}
+${restaurantSeoRules}
 
 ## 제목 규칙
 - 호기심을 끄는 스타일로 작성하되, 다른 네이버 블로그 글과 겹치지 않게 차별화
