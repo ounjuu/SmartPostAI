@@ -33,21 +33,27 @@ export function stripMarkdown(text: string): string {
 }
 
 // 문장 끝/중간에 붙은 얼굴·반응 이모티콘을 정리한다.
-// 웃는 계열은 ㅎㅎ, 우는/아쉬운 계열은 ㅜㅜ로 치환하고, 그 외 반응 이모티콘은 제거한다.
-// 📍📌✍️🌾✨💡⚠️✅👉 같은 구조용(소제목·박스·시그니처) 이모지는 건드리지 않는다.
+// 웃는 계열은 ㅎㅎ, 우는/아쉬운 계열은 ㅜㅜ로 치환하고, 그 외 모든 이모지는 제거한다.
+// 하드코딩 목록이 아니라 유니코드 이모지 전체(\p{Extended_Pictographic})를 잡으므로
+// 목록에 없는 이모지(🥺❤️💕☺️🤭 등)도 빠짐없이 처리된다.
+// 단, KEEP_EMOJI(한톨 시그니처 🌾)는 그대로 보존한다.
 const SMILE_EMOJI = "😀😁😂😃😄😅😆😉😊😋😍😎😏😌🙂🙃🥰🤗🤣😻"
-const CRY_EMOJI = "😢😭😥😪😔😞😟😫😩😓🥹🥲😿😖😣"
-const REMOVE_EMOJI = "😮😯😲😳🤤🤔😬😶🙄😵🤩🥳😱😨😰👍👏🙌🤙👌🤝🔥🎉🌸🍺💯😤😝😜😛"
+const CRY_EMOJI = "😢😭😥😪😔😞😟😫😩😓🥹🥲😿😖😣🥺"
+const KEEP_EMOJI = ["🌾"]
 
 const SMILE_RE = new RegExp(`[${SMILE_EMOJI}]`, "u")
 const CRY_RE = new RegExp(`[${CRY_EMOJI}]`, "u")
 
 export function normalizeEmoticons(text: string): string {
   if (!text) return text
-  const all = SMILE_EMOJI + CRY_EMOJI + REMOVE_EMOJI
-  // 공백을 포함한 연속 이모티콘 묶음을 한 번에 처리
-  const re = new RegExp(`[ \\t]*[${all}](?:[ \\t]*[${all}])*`, "gu")
+  // 이모지(+변형선택자·ZWJ·스킨톤 수식자)가 공백과 함께 이어진 묶음을 통째로 처리.
+  // 리터럴 정규식은 es5 타깃에서 u 플래그가 막히므로 RegExp 생성자로 만든다.
+  const re = new RegExp(
+    "[ \\t]*(?:\\p{Extended_Pictographic}[\\uFE0F\\u200D\\u{1F3FB}-\\u{1F3FF}]*)+",
+    "gu"
+  )
   return text.replace(re, (m) => {
+    if (KEEP_EMOJI.some((k) => m.indexOf(k) !== -1)) return m
     if (SMILE_RE.test(m)) return " ㅎㅎ"
     if (CRY_RE.test(m)) return " ㅜㅜ"
     return ""
