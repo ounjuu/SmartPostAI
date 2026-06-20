@@ -32,6 +32,28 @@ export function stripMarkdown(text: string): string {
   return result
 }
 
+// 문장 끝/중간에 붙은 얼굴·반응 이모티콘을 정리한다.
+// 웃는 계열은 ㅎㅎ, 우는/아쉬운 계열은 ㅜㅜ로 치환하고, 그 외 반응 이모티콘은 제거한다.
+// 📍📌✍️🌾✨💡⚠️✅👉 같은 구조용(소제목·박스·시그니처) 이모지는 건드리지 않는다.
+const SMILE_EMOJI = "😀😁😂😃😄😅😆😉😊😋😍😎😏😌🙂🙃🥰🤗🤣😻"
+const CRY_EMOJI = "😢😭😥😪😔😞😟😫😩😓🥹🥲😿😖😣"
+const REMOVE_EMOJI = "😮😯😲😳🤤🤔😬😶🙄😵🤩🥳😱😨😰👍👏🙌🤙👌🤝🔥🎉🌸🍺💯😤😝😜😛"
+
+const SMILE_RE = new RegExp(`[${SMILE_EMOJI}]`, "u")
+const CRY_RE = new RegExp(`[${CRY_EMOJI}]`, "u")
+
+export function normalizeEmoticons(text: string): string {
+  if (!text) return text
+  const all = SMILE_EMOJI + CRY_EMOJI + REMOVE_EMOJI
+  // 공백을 포함한 연속 이모티콘 묶음을 한 번에 처리
+  const re = new RegExp(`[ \\t]*[${all}](?:[ \\t]*[${all}])*`, "gu")
+  return text.replace(re, (m) => {
+    if (SMILE_RE.test(m)) return " ㅎㅎ"
+    if (CRY_RE.test(m)) return " ㅜㅜ"
+    return ""
+  })
+}
+
 // 본문에서 강조용 따옴표를 제거한다 (' ', " ", '', "" 모두 대응).
 // HTML 본문일 경우 태그 속성 안의 따옴표는 건드리지 않도록 태그 바깥 텍스트만 처리한다.
 export function stripEmphasisQuotes(text: string, isHtml: boolean): string {

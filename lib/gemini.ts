@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai"
 import { STYLE_PRESETS } from "./styles"
 import { callWithRetry } from "./retry"
-import { stripMarkdown, stripEmphasisQuotes } from "./markdown"
+import { stripMarkdown, stripEmphasisQuotes, normalizeEmoticons } from "./markdown"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -142,11 +142,16 @@ ${restaurantSeoRules}
 - **본문에 따옴표 금지**: 단어나 구문을 강조하려고 작은따옴표('단어')나 큰따옴표("단어")로 감싸지 마세요. 대화 인용이 아닌 한 따옴표 일체 사용 X. 강조가 필요하면 <b>태그(네이버) 또는 자연스러운 문장 흐름(티스토리)으로 표현하세요.
 - 해시태그 키워드는 띄어쓰기 없이 한 단어로 출력 (예: "강남 카페" X → "강남카페" O)
 - **소제목/섹션 헤더는 대괄호 태그 형식으로**: 이모지(📍💬🍝💡⚠️✅👉📌✨) 절대 X, 대신 \`[태그]\` 형식 사용
-  - 예시: \`📍 매장 정보\` X → \`[매장 정보]\` O, \`🍝 파스타 후기\` X → \`[파스타 후기]\` O, \`💬 솔직 후기\` X → \`[솔직 후기]\` O
+  - 예시: \`📍 매장 정보\` X → \`[매장 정보]\` O, \`🍝 파스타 후기\` X → \`[파스타 후기]\` O, \`💬 방문 후기\` X → \`[방문 후기]\` O
   - 네이버: \`<b>[매장 정보]</b>\` 처럼 굵게 처리 OK
   - 티스토리: 마크다운 없이 그냥 \`[매장 정보]\` 줄로 출력
   - 스타일 가이드에 이모지 + 소제목 형식이 있어도 무시하고 무조건 대괄호 형식 사용
-- 본문 문장 안에서의 자연스러운 이모지(예: "맛있었어요 😊")는 가끔 허용
+- **문장 끝에 이모티콘/이모지 붙이지 마세요**: "맛있었어요 😊", "신기했어요 😮", "좋더라고요 👍" 처럼 말 끝에 이모지를 붙이는 것 금지
+  - 웃는 느낌(😊😂😄😁🤣)은 \`ㅎㅎ\`로, 우는/아쉬운 느낌(😢😭🥲😥)은 \`ㅜㅜ\`로 대체 (예: "맛있었어요 ㅎㅎ", "금방 다 먹었어요 ㅜㅜ")
+  - 👍😮🤤🎉 같은 반응 이모지는 ㅎㅎ/ㅜㅜ로 바꾸기 애매하면 그냥 빼고 자연스러운 문장으로
+  - 단, "오늘도 한 톨, 저장 완료입니다 🌾" 시그니처와 소제목 대괄호 태그는 위 규칙과 무관하게 그대로 유지
+- **별점(⭐ ★) 평가 금지**: "맛 ⭐⭐⭐⭐⭐", "가성비 ★★★★" 같은 별점·점수 평가 섹션을 절대 넣지 마세요. 평가는 별점 없이 문장으로만 풀어쓰기
+- **"솔직 후기"라는 표현·소제목 사용 금지**: 대신 [방문 후기], [먹어본 후기], [사용 후기] 등으로 표현
 - **입력 출처를 본문에 드러내지 마세요**: 메모/사진은 "내가 직접 경험한 것"으로 가정하고 작성. 아래 표현 절대 금지
   - "메모에 ~라고 적혀있어요", "메모에 이렇게 되어있었죠", "메모를 보니"
   - "사진을 보니", "사진이 있으니까", "사진으로 보아"
@@ -194,10 +199,11 @@ JSON 형식으로 응답하세요:
   const keywords: string[] = parsed.keywords || []
 
   const isNaver = platform === "naver"
-  const cleanedTitle = stripEmphasisQuotes(isNaver ? title : stripMarkdown(title), false)
-  const cleanedContent = stripEmphasisQuotes(
-    isNaver ? content : stripMarkdown(content),
-    isNaver
+  const cleanedTitle = normalizeEmoticons(
+    stripEmphasisQuotes(isNaver ? title : stripMarkdown(title), false)
+  )
+  const cleanedContent = normalizeEmoticons(
+    stripEmphasisQuotes(isNaver ? content : stripMarkdown(content), isNaver)
   )
 
   return {
