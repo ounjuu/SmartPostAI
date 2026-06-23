@@ -7,6 +7,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
 export type Platform = "naver" | "tistory"
 
+/** 사용자에게 그대로 보여줘도 되는 (원인이 명확한) 생성 실패 오류 */
+export class GenerationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "GenerationError"
+  }
+}
+
 export interface BlogResult {
   title: string
   content: string
@@ -190,9 +198,46 @@ JSON 형식으로 응답하세요:
   }
 
   const result = await callWithRetry(() => model.generateContent(parts))
-  const text = result.response.text()
+  const response = result.response
 
-  const parsed = JSON.parse(text)
+  // 1) 프롬프트 자체가 안전성 정책으로 차단된 경우
+  const blockReason = response.promptFeedback?.blockReason
+  if (blockReason) {
+    throw new GenerationError(
+      `Gemini가 입력을 안전성 정책으로 차단했어요 (사유: ${blockReason}). 사진이나 메모 내용을 바꿔서 다시 시도해주세요.`
+    )
+  }
+
+  // 2) 응답이 비정상적으로 끝난 경우 (안전성 차단·토큰 초과 등)
+  const finishReason = response.candidates?.[0]?.finishReason
+  if (finishReason && finishReason !== "STOP") {
+    const reasonMap: Record<string, string> = {
+      SAFETY: "Gemini가 생성 결과를 안전성 정책으로 차단했어요. 사진이나 메모 내용을 바꿔서 다시 시도해주세요.",
+      MAX_TOKENS: "생성된 글이 너무 길어 중간에 잘렸어요. 메모를 줄이거나 사진 수를 줄여서 다시 시도해주세요.",
+      RECITATION: "Gemini가 저작권 보호 정책으로 응답을 중단했어요. 메모 내용을 바꿔서 다시 시도해주세요.",
+    }
+    throw new GenerationError(
+      reasonMap[finishReason] || `Gemini 응답이 비정상 종료됐어요 (사유: ${finishReason}). 다시 시도해주세요.`
+    )
+  }
+
+  let text: string
+  try {
+    text = response.text()
+  } catch {
+    throw new GenerationError("Gemini가 빈 응답을 반환했어요. 잠시 후 다시 시도해주세요.")
+  }
+
+  if (!text?.trim()) {
+    throw new GenerationError("Gemini가 빈 응답을 반환했어요. 잠시 후 다시 시도해주세요.")
+  }
+
+  let parsed: { title?: string; content?: string; keywords?: string[] }
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    throw new GenerationError("Gemini 응답을 JSON으로 해석하지 못했어요. 다시 시도해주세요.")
+  }
 
   const title = parsed.title || ""
   const content = parsed.content || ""

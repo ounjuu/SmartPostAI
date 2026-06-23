@@ -110,7 +110,8 @@ export default function ResultPage() {
     })
 
     if (!response.ok) {
-      throw new Error("글 생성에 실패했습니다. 다시 시도해주세요.")
+      const data = await response.json().catch(() => null)
+      throw new Error(data?.error || "글 생성에 실패했습니다. 다시 시도해주세요.")
     }
 
     return await response.json()
