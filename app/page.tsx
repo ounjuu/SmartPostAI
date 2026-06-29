@@ -129,6 +129,24 @@ export default function Home() {
 
         <div className="flex justify-center gap-4">
           <Link
+            href="/shortform"
+            className="text-sm text-red-400 hover:text-red-500 transition-colors"
+          >
+            숏폼 만들기 &rarr;
+          </Link>
+          <Link
+            href="/threads"
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            쓰레드 일상 글 &rarr;
+          </Link>
+          <Link
+            href="/coupang"
+            className="text-sm text-yellow-500 hover:text-yellow-600 transition-colors"
+          >
+            쿠팡 파트너스 &rarr;
+          </Link>
+          <Link
             href="/convert"
             className="text-sm text-blue-400 hover:text-blue-500 transition-colors"
           >
